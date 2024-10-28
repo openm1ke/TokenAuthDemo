@@ -1,0 +1,39 @@
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: token-based-auth
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        default_schema: app
+        format_sql: false
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:token-based-auth
+    username: sa
+    password: password
+
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    password: postgres
+#    dbcp2:
+#      default-schema: app
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+logging:
+  level:
+    root: info
+    org.springframework: error
+    org.hibernate: error
