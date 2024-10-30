@@ -1,10 +1,8 @@
 package tokenbased.services;
 
 import org.springframework.stereotype.Service;
-import tokenbased.models.User;
 import tokenbased.repositories.UserRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
