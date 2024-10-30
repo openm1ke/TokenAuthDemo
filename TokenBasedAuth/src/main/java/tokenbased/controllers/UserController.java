@@ -1,14 +1,15 @@
 package tokenbased.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import tokenbased.models.User;
 import tokenbased.services.UserService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -21,13 +22,38 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public User createUser(String login, String password) {
-        return userService.createUser(login, password);
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok().body(userService.findAll());
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/private")
+    public ResponseEntity<Map<String, String>> privatePage() {
+        return ResponseEntity.ok().body(Map.of("message", "private page"));
     }
+
+    @PostMapping("/auth")
+    public ResponseEntity<Map<String, String>> authUser(@RequestParam String login, @RequestParam String password) {
+        Optional<User> user = userService.authUser(login, password);
+        if(user.isPresent()) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + user.get().getToken())
+                    .body(Map.of("message", "User authenticated successfully"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials"));
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, String>> registerUser(@RequestParam String login, @RequestParam String password) {
+        Optional<User> user = userService.registerUser(login, password);
+        if(user.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User already exists"));
+        } else {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + user.get().getToken())
+                    .body(Map.of("message", "User created successfully"));
+        }
+    }
+
 }
